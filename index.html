@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>商品取り置きシステム</title>
+    <script src="https://static.line-scdn.net/liff/2.1/sdk.js"></script>
+    <style>
+        .product {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .product img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+        #confirmation {
+            display: none;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>商品取り置きシステム</h1>
+    <div id="product-list">
+        <!-- 商品リストはここに表示されます -->
+    </div>
+    <div id="form-area" style="display:none;">
+        <h2>取り置きフォーム</h2>
+        <p id="selected-product"></p>
+        <label>お名前: <input type="text" id="user-name"></label><br>
+        <label>連絡先: <input type="text" id="user-contact"></label><br>
+        <button onclick="submitReservation()">送信</button>
+    </div>
+
+    <div id="confirmation">
+        <h2>取り置き確認</h2>
+        <p id="confirmation-message"></p>
+    </div>
+
+    <script>
+        let selectedProductId = null;
+        let selectedProductName = '';
+
+        function loadProductList() {
+            const productsByCategory = {
+                "シャンプー": [
+                    { id: 1, name: 'Qgシャンプー', image: 'https://via.placeholder.com/80?text=Qg' },
+                    { id: 2, name: 'WELL&WELL', image: 'https://via.placeholder.com/80?text=WELL' },
+                    { id: 3, name: 'エミーム', image: 'https://via.placeholder.com/80?text=EMEEM' },
+                    { id: 4, name: 'リラベール単品', image: 'https://via.placeholder.com/80?text=単品' },
+                    { id: 5, name: 'リラベールセット', image: 'https://via.placeholder.com/80?text=セット' }
+                ],
+                "トリートメント": [
+                    { id: 6, name: 'QGトリートメント', image: 'https://via.placeholder.com/80?text=QGトリ' },
+                    { id: 7, name: 'WELL&WELL', image: 'https://via.placeholder.com/80?text=WELL' },
+                    { id: 8, name: 'リラベール単品', image: 'https://via.placeholder.com/80?text=単品' }
+                ],
+                "アウトバス": [
+                    { id: 9, name: 'ボディソープE', image: 'https://via.placeholder.com/80?text=E' },
+                    { id: 10, name: 'ハンドクリームF', image: 'https://via.placeholder.com/80?text=F' }
+                ],
+                "スタイリング": [
+                    { id: 11, name: 'ワックスG', image: 'https://via.placeholder.com/80?text=G' },
+                    { id: 12, name: 'スプレーH', image: 'https://via.placeholder.com/80?text=H' }
+                ],
+                "その他": [
+                    { id: 13, name: 'メンズシャンプーI', image: 'https://via.placeholder.com/80?text=I' },
+                    { id: 14, name: 'メンズ洗顔J', image: 'https://via.placeholder.com/80?text=J' }
+                ]
+            };
+
+            let productHTML = '';
+
+            for (const category in productsByCategory) {
+                productHTML += `<h2>${category}</h2>`;
+                productsByCategory[category].forEach(product => {
+                    productHTML += `
+                        <div class="product">
+                            <img src="${product.image}" alt="${product.name}">
+                            <div>
+                                ${product.name}<br>
+                                <button onclick="reserveProduct(${product.id}, '${product.name}')">取り置き</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('product-list').innerHTML = productHTML;
+        }
+
+        function reserveProduct(productId, productName) {
+            selectedProductId = productId;
+            selectedProductName = productName;
+            document.getElementById('selected-product').innerText = `選択された商品: ${productName}`;
+            document.getElementById('form-area').style.display = 'block';
+        }
+
+        function submitReservation() {
+            const name = document.getElementById('user-name').value;
+            const contact = document.getElementById('user-contact').value;
+
+            if (!name || !contact) {
+                alert('名前と連絡先を入力してください');
+                return;
+            }
+
+            const message = `以下の内容で取り置きを受け付けました。\n\n商品: ${selectedProductName}\nお名前: ${name}\n連絡先: ${contact}`;
+            document.getElementById('confirmation-message').innerText = message;
+            document.getElementById('confirmation').style.display = 'block';
+
+            document.getElementById('form-area').style.display = 'none';
+            document.getElementById('user-name').value = '';
+            document.getElementById('user-contact').value = '';
+        }
+
+        window.onload = function () {
+            liff.init({ liffId: '2007254341-XZOnlxLq' }) // ← ここをあなたのLIFF IDに書き換えてね！
+                .then(() => {
+                    console.log("LIFF init success");
+                    loadProductList();
+                })
+                .catch(err => {
+                    console.error("LIFF init failed", err);
+                    alert("LIFF初期化に失敗しました。");
+                });
+        };
+    </script>
+</body>
+</html>
